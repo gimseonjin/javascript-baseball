@@ -22,16 +22,73 @@ class App {
     this.result = {}
   }
 
-  getRandomNumbers(){
+  getRandomNumbers() {
     this.result = {}
-    let count = 0;
-    while (count < 3) {
+    while (Object.keys(this.result).length < 3) {
       const number = MissionUtils.Random.pickNumberInRange(1, 9);
-      if (!this.result.hasOwnProperty(number)) {
-        this.result[number] = count;
-        count++;
-      }
+      this.addRandomNumbersToResult(number)
     }
+  }
+
+  addRandomNumbersToResult(number){
+    if (!this.result.hasOwnProperty(number)) {
+      this.result[number] = Object.keys(this.result).length;
+    }
+  }
+
+  checkResult(answers) {
+    let strike = answers.filter((value, index, arr) => this.isStrike(value, index)).length
+    let ball = answers.filter((value, index, arr) => this.isBall(value, index)).length
+    return [strike, ball]
+  }
+
+  isStrike(target, i){
+    return this.result.hasOwnProperty(target) && i == this.result[target]
+  }
+
+  isBall(target, i){
+    return this.result.hasOwnProperty(target) && i != this.result[target]
+  }
+
+  resultToString(strike, ball) {
+    let result = ""
+    if(ball != 0) result += `${ball}볼`
+    if(strike != 0) result += `${strike}스트라이크`
+    if(strike ==0 && ball == 0) result += `낫싱`
+    return result
+  }
+
+  checkAnswer(strike){
+    if(strike == 3){
+      MissionUtils.Console.print("3개의 숫자를 모두 맞히셨습니다! 게임 종료")
+      MissionUtils.Console.readLine('게임을 새로 시작하려면 1, 종료하려면 2를 입력하세요.', (answer) => {
+        this.isRestart(answer)
+      })
+    }else{
+      this.startProgress()
+    }
+  }
+
+  isRestart(answer){
+    if(answer == 2) 
+      throw Error()
+    this.play()
+  }
+
+  startProgress(){
+    MissionUtils.Console.readLine('숫자를 입력해주세요 : ', (answer) => {
+
+      const answers = answer.split('');
+
+      const [strike, ball] = this.checkResult(answers)
+
+      const result = this.resultToString(strike, ball)
+
+      MissionUtils.Console.print(result)
+
+      this.checkAnswer(strike)
+
+    });
   }
 
   play() {
@@ -42,49 +99,7 @@ class App {
 
     MissionUtils.Console.print("숫자 야구 게임을 시작합니다.")
 
-    MissionUtils.Console.readLine('숫자를 입력해주세요 : ', (answer) => {
-
-      const answers = answer.split('');
-
-      let strike = 0;
-      let ball = 0;
-
-      for(var i = 0; i < answers.length; i++){
-        const target = answers[i];
-        if(this.result.hasOwnProperty(target)){
-          if(i == this.result[target]){
-            strike++;
-          }else{
-            ball++;
-          }
-        }
-      }
-
-      let result = ""
-      if(ball != 0){
-        result += `${ball}볼`
-      }
-      if(strike != 0){
-        result += `${strike}스트라이크`
-      }
-      if(strike ==0 && ball == 0){
-        result += `낫싱`
-      }
-
-      MissionUtils.Console.print(result)
-
-      if(strike == 3){
-        MissionUtils.Console.print("3개의 숫자를 모두 맞히셨습니다! 게임 종료")
-        MissionUtils.Console.readLine('게임을 새로 시작하려면 1, 종료하려면 2를 입력하세요.', (answer) => {
-          if(answer == 1){
-            this.play()
-          }else{
-            throw Error()
-          }
-        })
-      }
-
-    });
+    this.startProgress()
   }
 }
 
