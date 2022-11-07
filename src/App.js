@@ -17,18 +17,28 @@
 const MissionUtils = require("@woowacourse/mission-utils");
 
 class App {
-  play() {
-    const computer = {};
+
+  constructor(){
+    this.result = {}
+  }
+
+  getRandomNumbers(){
+    this.result = {}
     let count = 0;
     while (count < 3) {
       const number = MissionUtils.Random.pickNumberInRange(1, 9);
-      if (!computer.hasOwnProperty(number)) {
-        computer[number] = count;
+      if (!this.result.hasOwnProperty(number)) {
+        this.result[number] = count;
         count++;
       }
     }
+  }
 
-    console.log(computer)
+  play() {
+    
+    this.getRandomNumbers()
+
+    console.log(this.result)
 
     MissionUtils.Console.print("숫자 야구 게임을 시작합니다.")
 
@@ -41,8 +51,8 @@ class App {
 
       for(var i = 0; i < answers.length; i++){
         const target = answers[i];
-        if(computer.hasOwnProperty(target)){
-          if(i == computer[target]){
+        if(this.result.hasOwnProperty(target)){
+          if(i == this.result[target]){
             strike++;
           }else{
             ball++;
